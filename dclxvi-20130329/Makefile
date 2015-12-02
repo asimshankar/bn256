@@ -24,19 +24,19 @@ bilintest-check: bilintest.c linefunction.c optate.c fpe.c fp2e.c fp6e.c fp12e.c
 	$(CPP) $(CPPFLAGS) -DNTESTS=20 -o $@ $^
 
 bilintest-c: bilintest.c linefunction.c optate.c fpe.c fp2e.c fp6e.c fp12e.c curvepoint_fp.c twistpoint_fp2.c final_expo.c scalar.c parameters.c mul.c mydouble.c
-	$(CC) $(CFLAGS) $(LFLAGS) -DNTESTS=1000 -o $@ $^
+	$(CC) $(CFLAGS) -DNTESTS=1000 -o $@ $^ $(LFLAGS)
 
 bilintest-as: bilintest.c linefunction.c optate.c fpe.c fp2e.c fp6e.c fp12e.c curvepoint_fp.c twistpoint_fp2.c final_expo.c scalar.c parameters.c mul.c mydouble.c asfunctions.a
-	$(CC) $(CFLAGS) $(LFLAGS) -DQHASM -DNTESTS=1000000 -o $@ $^
+	$(CC) $(CFLAGS) -DQHASM -DNTESTS=1000000 -o $@ $^ $(LFLAGS)
 
 speedtest-check: speedtest.c linefunction.c optate.c fpe.c fp2e.c fp6e.c fp12e.c curvepoint_fp.c twistpoint_fp2.c final_expo.c scalar.c parameters.c mul.c mydouble.c
 	$(CPP) $(CPPFLAGS) -o $@ $^
 
 speedtest-c: speedtest.c linefunction.c optate.c fpe.c fp2e.c fp6e.c fp12e.c curvepoint_fp.c twistpoint_fp2.c final_expo.c scalar.c parameters.c mul.c mydouble.c
-	$(CC) $(CFLAGS) $(LFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
 
 speedtest-as: speedtest.c linefunction.c optate.c fpe.c fp2e.c fp6e.c fp12e.c curvepoint_fp.c twistpoint_fp2.c final_expo.c scalar.c parameters.c mul.c mydouble.c asfunctions.a
-	$(CC) $(CFLAGS) $(LFLAGS) -DQHASM -o $@ $^
+	$(CC) $(CFLAGS) -DQHASM -o $@ $^ $(LFLAGS)
 
 test_curvepoint_multiscalar-check: test_curvepoint_multiscalar.c fpe.c scalar.c parameters.c curvepoint_fp.c mul.c mydouble.c \
 																		curvepoint_fp_multiscalar.c heap_rootreplaced.s index_heap.c scalar_sub_nored.s \
@@ -46,7 +46,7 @@ test_curvepoint_multiscalar-check: test_curvepoint_multiscalar.c fpe.c scalar.c 
 test_curvepoint_multiscalar-as: test_curvepoint_multiscalar.c fpe.c scalar.c parameters.c curvepoint_fp.c mul.c mydouble.c \
 																curvepoint_fp_multiscalar.c heap_rootreplaced.s index_heap.c scalar_sub_nored.s \
 																asfunctions.a
-	$(CC) $(CFLAGS) $(LFLAGS) -DQHASM -o $@ $^
+	$(CC) $(CFLAGS) -DQHASM -o $@ $^ $(LFLAGS)
 
 test_twistpoint_multiscalar-check: test_twistpoint_multiscalar.c fpe.c fp2e.c scalar.c parameters.c twistpoint_fp2.c mul.c mydouble.c \
 																	twistpoint_fp2_multiscalar.c heap_rootreplaced.s index_heap.c scalar_sub_nored.s \
@@ -56,7 +56,7 @@ test_twistpoint_multiscalar-check: test_twistpoint_multiscalar.c fpe.c fp2e.c sc
 test_twistpoint_multiscalar-as: test_twistpoint_multiscalar.c fpe.c fp2e.c scalar.c parameters.c twistpoint_fp2.c mul.c mydouble.c \
 																	twistpoint_fp2_multiscalar.c heap_rootreplaced.s index_heap.c scalar_sub_nored.s \
 																	asfunctions.a
-	$(CC) $(CFLAGS) $(LFLAGS) -DQHASM -o $@ $^
+	$(CC) $(CFLAGS) -DQHASM -o $@ $^ $(LFLAGS)
 
 
 %.o: %.s
