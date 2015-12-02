@@ -1,0 +1,10 @@
+bilintest-as
+bilintest-c
+bilintest-check
+speedtest-as
+speedtest-c
+speedtest-check
+test_curvepoint_multiscalar-as
+test_curvepoint_multiscalar-check
+test_twistpoint_multiscalar-as
+test_twistpoint_multiscalar-check
