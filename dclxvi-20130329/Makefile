@@ -62,6 +62,9 @@ test_twistpoint_multiscalar-as: test_twistpoint_multiscalar.c fpe.c fp2e.c scala
 %.o: %.s
 	$(CC) $(CFLAGS) -c -o $@ $^
 
+%.o: %.c
+	$(CC) $(CFLAGS) -DHQASM -c -o $@ $^
+
 asfunctions.a: fp2e_add2.o fp2e_sub2.o \
 	fp2e_double2.o fp2e_triple2.o fp2e_neg2.o \
 	fp2e_mul.o fp2e_mul_fpe.o fp2e_short_coeffred.o \
@@ -71,6 +74,29 @@ asfunctions.a: fp2e_add2.o fp2e_sub2.o \
 	consts.o
 	rm -f asfunctions.a
 	ar cr asfunctions.a $^
+
+libdclxvi.a: linefunction.o \
+	optate.o \
+	fpe.o \
+	fp2e.o \
+	fp6e.o \
+	fp12e.o \
+	curvepoint_fp.o \
+	twistpoint_fp2.o \
+	final_expo.o \
+	scalar.o \
+	parameters.o \
+	mul.o \
+	mydouble.o \
+	fp2e_add2.o fp2e_sub2.o \
+	fp2e_double2.o fp2e_triple2.o fp2e_neg2.o \
+	fp2e_mul.o fp2e_mul_fpe.o fp2e_short_coeffred.o \
+	fp2e_add.o fp2e_sub.o fp2e_parallel_coeffmul.o fp2e_mulxi.o\
+	fp2e_double.o fp2e_triple.o fp2e_neg.o fp2e_conjugate.o \
+	fpe_mul.o fp2e_square.o \
+	consts.o
+	rm -f $@
+	ar cr $@ $^
 
 .PHONY: clean
 
@@ -85,3 +111,4 @@ clean:
 	-rm test_curvepoint_multiscalar-check
 	-rm *.o
 	-rm asfunctions.a
+	-rm libdclxvi.a
