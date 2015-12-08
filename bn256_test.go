@@ -83,7 +83,10 @@ func TestG1(t *testing.T) {
 	}
 }
 
-var benchmarkK *big.Int
+var (
+	benchmarkK             *big.Int
+	benchmarkA, benchmarkB *big.Int
+)
 
 func init() {
 	// Randomly chose one
@@ -91,6 +94,8 @@ func init() {
 	if benchmarkK, ok = new(big.Int).SetString("55957183647262293325367359498614325417154459764697977524189246266898748271344", 10); !ok {
 		panic("failed to set value for benchmarkK")
 	}
+	benchmarkA, _ = rand.Int(rand.Reader, bn256.Order)
+	benchmarkB, _ = rand.Int(rand.Reader, bn256.Order)
 }
 
 // Ultimately, the only benchmark that will matter is the one for Pair, but
@@ -109,4 +114,13 @@ func BenchmarkG1_ScalarBaseMult(b *testing.B) {
 }
 func BenchmarkG1_ScalarBaseMult_C(b *testing.B) {
 	benchmarkScalarBaseMultC(b.N, benchmarkK)
+}
+
+func BenchmarkPair_Baseline(b *testing.B) {
+	pa := new(bn256.G1).ScalarBaseMult(benchmarkA)
+	qb := new(bn256.G2).ScalarBaseMult(benchmarkB)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		bn256.Pair(pa, qb)
+	}
 }
