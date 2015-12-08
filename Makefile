@@ -14,7 +14,7 @@ clean:
 	$(MAKE) -C $(DCLXVI_DIR) clean
 
 deps: libdclxvi
-	go get ./...
+	go get -t ./...
 
 test: deps
 	go test ./... -v -bench .
