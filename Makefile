@@ -13,9 +13,12 @@ clean:
 	go clean -i ./...
 	$(MAKE) -C $(DCLXVI_DIR) clean
 
-test: libdclxvi
+deps: libdclxvi
+	go get ./...
+
+test: deps
 	go test ./... -v -bench .
 
-install: libdclxvi
+install: deps
 	go install ./...
 
