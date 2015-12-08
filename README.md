@@ -1,4 +1,6 @@
 # bn256
+[![Build Status](https://travis-ci.org/asimshankar/bn256.svg)](https://travis-ci.org/asimshankar/bn256)
+
 Experimenting with cgo for bn256 pairings
 (https://godoc.org/golang.org/x/crypto/bn256) using
 https://www.cryptojedi.org/crypto/#dclxvi
