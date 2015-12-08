@@ -17,8 +17,11 @@ deps: libdclxvi
 	go get -t ./...
 
 test: deps
-	go test ./... -v -bench .
+	go test ./... -v
 
 install: deps
 	go install ./...
+
+benchmarks: deps
+	go test ./... -run X -bench .
 
