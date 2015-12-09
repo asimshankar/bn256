@@ -10,6 +10,8 @@ import (
 	"golang.org/x/crypto/bn256"
 )
 
+// TODO: Add tests for methods not tested: Add, Neg, GT.ScalarMult
+
 func TestP(t *testing.T) {
 	// Test that p is indeed 36u⁴+36u³+24u³+6u+1
 	// (where u is v³ and v is picked up from the C-library)
@@ -118,13 +120,69 @@ func TestG2(t *testing.T) {
 	}
 }
 
+func TestPair(t *testing.T) {
+	// Two randomly chosen numbers
+	onetest := func(k1, k2 *big.Int) error {
+		var (
+			got   = Pair(new(G1).ScalarBaseMult(k1), new(G2).ScalarBaseMult(k2))
+			gotS  = got.String()
+			gotB  = got.Marshal()
+			want  = bn256.Pair(new(bn256.G1).ScalarBaseMult(k1), new(bn256.G2).ScalarBaseMult(k2))
+			wantS = want.String()
+			wantB = want.Marshal()
+		)
+		if gotS != wantS {
+			return fmt.Errorf("(%v, %v): String: Got %q, want %q", k1, k2, gotS, wantS)
+		}
+		if !bytes.Equal(gotB, wantB) {
+			return fmt.Errorf("(%v, %v): Marshal: Got %v, want %v", k1, k2, gotB, wantB)
+		}
+		// Unmarshal and Marshal again.
+		unmarshaled, ok := new(GT).Unmarshal(gotB)
+		if !ok {
+			return fmt.Errorf("(%v, %v): Unmarshal failed", k1, k2)
+		}
+		again := unmarshaled.Marshal()
+		if !bytes.Equal(gotB, again) {
+			return fmt.Errorf("(%v, %v): Umarshal+Marshal: Got %v, want %v", k1, k2, again, gotB)
+		}
+		return nil
+	}
+	big0, big1 := big.NewInt(0), big.NewInt(1)
+	for _, test := range [][2]*big.Int{
+		{big0, big0},
+		{big0, big1},
+		{big1, big0},
+		{big1, big1},
+	} {
+		if err := onetest(test[0], test[1]); err != nil {
+			t.Error(err)
+		}
+	}
+	for i := 0; i < 100; i++ {
+		k1, err := rand.Int(rand.Reader, p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		k2, err := rand.Int(rand.Reader, p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := onetest(k1, k2); err != nil {
+			t.Errorf("%v (random test #%d)", err, i)
+		}
+	}
+}
+
 func TestBadUnmarshal(t *testing.T) {
 	var (
 		k  = big.NewInt(10) // Anything random
 		g1 = new(G1).ScalarBaseMult(k)
 		g2 = new(G2).ScalarBaseMult(k)
+		gt = Pair(g1, g2)
 		b1 = g1.Marshal()
 		b2 = g2.Marshal()
+		bt = gt.Marshal()
 	)
 	// nil, empty, one byte less, one byte more
 	for _, test := range [][]byte{
@@ -134,12 +192,17 @@ func TestBadUnmarshal(t *testing.T) {
 		append(b1, 0),
 		b2[0 : len(b2)-1],
 		append(b2, 0),
+		bt[0 : len(bt)-1],
+		append(bt, 0),
 	} {
 		if _, ok := g1.Unmarshal(test); ok {
 			t.Errorf("G1.Unmarshal succeeded on a %d byte slice", len(test))
 		}
 		if _, ok := g2.Unmarshal(test); ok {
 			t.Errorf("G2.Unmarshal succeeded on a %d byte slice", len(test))
+		}
+		if _, ok := gt.Unmarshal(test); ok {
+			t.Errorf("GT.Unmarshal succeeded on a %d byte slice", len(test))
 		}
 	}
 }
@@ -192,11 +255,27 @@ func BenchmarkG2_ScalarBaseMult_C(b *testing.B) {
 	benchmarkG2ScalarBaseMult(b.N, benchmarkK)
 }
 
-func BenchmarkPair_Baseline(b *testing.B) {
+func BenchmarkPairGo(b *testing.B) {
 	pa := new(bn256.G1).ScalarBaseMult(benchmarkA)
 	qb := new(bn256.G2).ScalarBaseMult(benchmarkB)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		bn256.Pair(pa, qb)
 	}
+}
+
+func BenchmarkPairCGO(b *testing.B) {
+	pa := new(G1).ScalarBaseMult(benchmarkA)
+	qb := new(G2).ScalarBaseMult(benchmarkB)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		Pair(pa, qb)
+	}
+}
+
+func BenchmarkPairC(b *testing.B) {
+	pa := new(G1).ScalarBaseMult(benchmarkA)
+	qb := new(G2).ScalarBaseMult(benchmarkB)
+	b.ResetTimer()
+	benchmarkPairC(b.N, pa, qb)
 }
