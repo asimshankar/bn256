@@ -83,6 +83,67 @@ func TestG1(t *testing.T) {
 	}
 }
 
+func TestG2(t *testing.T) {
+	onetest := func(k *big.Int) error {
+		var (
+			got   = new(G2).ScalarBaseMult(k)
+			gotS  = got.String()
+			gotB  = got.Marshal()
+			want  = new(bn256.G2).ScalarBaseMult(k)
+			wantS = want.String()
+			wantB = want.Marshal()
+		)
+		if gotS != wantS {
+			return fmt.Errorf("k=%v: String: Got %q, want %q", k, gotS, wantS)
+		}
+		if !bytes.Equal(gotB, wantB) {
+			return fmt.Errorf("k=%v: Marshal: Got %v, want %v", k, gotB, wantB)
+		}
+		// Unmarshal and Marshal again.
+		unmarshaled, ok := new(G2).Unmarshal(gotB)
+		if !ok {
+			return fmt.Errorf("k=%v: Unmarshal failed", k)
+		}
+		again := unmarshaled.Marshal()
+		if !bytes.Equal(gotB, again) {
+			return fmt.Errorf("k=%v: Umarshal+Marshal: Got %v, want %v", k, again, gotB)
+		}
+		return nil
+	}
+	if err := onetest(big.NewInt(0)); err != nil {
+		t.Error(err)
+	}
+	if err := onetest(big.NewInt(1)); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestBadUnmarshal(t *testing.T) {
+	var (
+		k  = big.NewInt(10) // Anything random
+		g1 = new(G1).ScalarBaseMult(k)
+		g2 = new(G2).ScalarBaseMult(k)
+		b1 = g1.Marshal()
+		b2 = g2.Marshal()
+	)
+	// nil, empty, one byte less, one byte more
+	for _, test := range [][]byte{
+		nil,
+		make([]byte, 0),
+		b1[0 : len(b1)-1],
+		append(b1, 0),
+		b2[0 : len(b2)-1],
+		append(b2, 0),
+	} {
+		if _, ok := g1.Unmarshal(test); ok {
+			t.Errorf("G1.Unmarshal succeeded on a %d byte slice", len(test))
+		}
+		if _, ok := g2.Unmarshal(test); ok {
+			t.Errorf("G2.Unmarshal succeeded on a %d byte slice", len(test))
+		}
+	}
+}
+
 var (
 	benchmarkK             *big.Int
 	benchmarkA, benchmarkB *big.Int
@@ -113,7 +174,22 @@ func BenchmarkG1_ScalarBaseMult(b *testing.B) {
 	}
 }
 func BenchmarkG1_ScalarBaseMult_C(b *testing.B) {
-	benchmarkScalarBaseMultC(b.N, benchmarkK)
+	benchmarkG1ScalarBaseMult(b.N, benchmarkK)
+}
+func BenchmarkG2_ScalarBaseMult_Baseline(b *testing.B) {
+	g := new(bn256.G2)
+	for i := 0; i < b.N; i++ {
+		g.ScalarBaseMult(benchmarkK)
+	}
+}
+func BenchmarkG2_ScalarBaseMult(b *testing.B) {
+	g := new(G2)
+	for i := 0; i < b.N; i++ {
+		g.ScalarBaseMult(benchmarkK)
+	}
+}
+func BenchmarkG2_ScalarBaseMult_C(b *testing.B) {
+	benchmarkG2ScalarBaseMult(b.N, benchmarkK)
 }
 
 func BenchmarkPair_Baseline(b *testing.B) {
