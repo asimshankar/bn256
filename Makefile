@@ -1,6 +1,6 @@
 DCLXVI_DIR=dclxvi-20130329
 
-all: libdclxvi test install
+all: libdclxvi test benchmarks install
 
 .PHONY: libdclxvi
 
