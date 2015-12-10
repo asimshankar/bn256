@@ -63,7 +63,7 @@ test_twistpoint_multiscalar-as: test_twistpoint_multiscalar.c fpe.c fp2e.c scala
 	$(CC) $(CFLAGS) -c -o $@ $^
 
 %.o: %.c
-	$(CC) $(CFLAGS) -DHQASM -c -o $@ $^
+	$(CC) $(CFLAGS) -DQHASM -c -o $@ $^
 
 asfunctions.a: fp2e_add2.o fp2e_sub2.o \
 	fp2e_double2.o fp2e_triple2.o fp2e_neg2.o \
