@@ -1,5 +1,6 @@
 # bn256
 [![Build Status](https://travis-ci.org/asimshankar/bn256.svg)](https://travis-ci.org/asimshankar/bn256)
+[![GoDoc](https://godoc.org/github.com/asimshankar/bn256?status.svg)](https://godoc.org/github.com/asimshankar/bn256)
 
 Experimenting with cgo for bn256 pairings
 (https://godoc.org/golang.org/x/crypto/bn256) using
