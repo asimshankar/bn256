@@ -207,52 +207,11 @@ func TestBadUnmarshal(t *testing.T) {
 	}
 }
 
-var (
-	benchmarkK             *big.Int
-	benchmarkA, benchmarkB *big.Int
-)
+var benchmarkA, benchmarkB *big.Int
 
 func init() {
-	// Randomly chose one
-	var ok bool
-	if benchmarkK, ok = new(big.Int).SetString("55957183647262293325367359498614325417154459764697977524189246266898748271344", 10); !ok {
-		panic("failed to set value for benchmarkK")
-	}
 	benchmarkA, _ = rand.Int(rand.Reader, bn256.Order)
 	benchmarkB, _ = rand.Int(rand.Reader, bn256.Order)
-}
-
-// Ultimately, the only benchmark that will matter is the one for Pair, but
-// some other tests in the meantime.
-func BenchmarkG1_ScalarBaseMult_Baseline(b *testing.B) {
-	g := new(bn256.G1)
-	for i := 0; i < b.N; i++ {
-		g.ScalarBaseMult(benchmarkK)
-	}
-}
-func BenchmarkG1_ScalarBaseMult(b *testing.B) {
-	g := new(G1)
-	for i := 0; i < b.N; i++ {
-		g.ScalarBaseMult(benchmarkK)
-	}
-}
-func BenchmarkG1_ScalarBaseMult_C(b *testing.B) {
-	benchmarkG1ScalarBaseMult(b.N, benchmarkK)
-}
-func BenchmarkG2_ScalarBaseMult_Baseline(b *testing.B) {
-	g := new(bn256.G2)
-	for i := 0; i < b.N; i++ {
-		g.ScalarBaseMult(benchmarkK)
-	}
-}
-func BenchmarkG2_ScalarBaseMult(b *testing.B) {
-	g := new(G2)
-	for i := 0; i < b.N; i++ {
-		g.ScalarBaseMult(benchmarkK)
-	}
-}
-func BenchmarkG2_ScalarBaseMult_C(b *testing.B) {
-	benchmarkG2ScalarBaseMult(b.N, benchmarkK)
 }
 
 func BenchmarkPairGo(b *testing.B) {
@@ -271,11 +230,4 @@ func BenchmarkPairCGO(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		Pair(pa, qb)
 	}
-}
-
-func BenchmarkPairC(b *testing.B) {
-	pa := new(G1).ScalarBaseMult(benchmarkA)
-	qb := new(G2).ScalarBaseMult(benchmarkB)
-	b.ResetTimer()
-	benchmarkPairC(b.N, pa, qb)
 }

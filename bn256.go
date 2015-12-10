@@ -23,29 +23,6 @@ import (
 const scalar_t bn_v_scalar;
 const curvepoint_fp_t bn_curvegen;
 const twistpoint_fp2_t bn_twistgen;
-
-void runBenchmarkPair(int N, curvepoint_fp_t op2, twistpoint_fp2_t op1) {
-	fp12e_t rop;
-	int i;
-	for (i = 0; i < N; i++) {
-		optate(rop, op1, op2);
-	}
-}
-// TODO: Remove this.
-void runBenchmarkG1ScalarMult(int N, const curvepoint_fp_t op, const scalar_t s) {
-	curvepoint_fp_t rop;
-	int i;
-	for (i = 0; i < N; i++) {
-		curvepoint_fp_scalarmult_vartime(rop, op, s);
-	}
-}
-void runBenchmarkG2ScalarMult(int N, const twistpoint_fp2_t op, const scalar_t s) {
-	twistpoint_fp2_t rop;
-	int i;
-	for (i = 0; i < N; i++) {
-		twistpoint_fp2_scalarmult_vartime(rop, op, s);
-	}
-}
 */
 import "C"
 
@@ -392,20 +369,4 @@ func putBigBytes(dst []byte, idx int, n *big.Int) {
 		limit = (idx + 1) * numBytes
 	)
 	copy(dst[start:limit], b)
-}
-
-// Helper function to measure "Go-overhead"
-// TODO: Remove?
-func benchmarkG1ScalarBaseMult(N int, k *big.Int) {
-	var ck [4]C.ulonglong
-	big2scalar(&ck, k)
-	C.runBenchmarkG1ScalarMult(C.int(N), &baseG1.p, &ck[0])
-}
-func benchmarkG2ScalarBaseMult(N int, k *big.Int) {
-	var ck [4]C.ulonglong
-	big2scalar(&ck, k)
-	C.runBenchmarkG2ScalarMult(C.int(N), &baseG2.p, &ck[0])
-}
-func benchmarkPairC(N int, g1 *G1, g2 *G2) {
-	C.runBenchmarkPair(C.int(N), &g1.p, &g2.p)
 }
