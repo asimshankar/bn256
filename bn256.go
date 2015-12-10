@@ -4,6 +4,16 @@
 // Niederhagen, and Peter Schwabe (See
 // https://www.cryptojedi.org/crypto/#dclxvi and "New software speed records
 // for cryptographic pairings." published in LATINCRYPT 2010).
+//
+// Benchmarks on Intel(R) Xeon(R) CPU           X5679  @ 3.20GHz
+// (via "go test github.com/asimshankar/bn256 -bench .)
+// suggest a ~20x speedup over the pure Go implementation:
+//  BenchmarkPairGo-6             50          32490530 ns/op # golang.org/x/crypto/bn256
+//  BenchmarkPairCGO-6          1000           1588475 ns/op
+//
+//
+// Documentation for types and methods should be read from:
+// https://godoc.org/golang.org/x/crypto/bn256
 package bn256
 
 import (
@@ -196,7 +206,7 @@ func Pair(g1 *G1, g2 *G2) *GT {
 }
 
 func (e *GT) Add(a, b *GT) *GT {
-	C.fp12e_add(&e.p, &a.p, &b.p)
+	C.fp12e_mul(&e.p, &a.p, &b.p)
 	return e
 }
 

@@ -10,8 +10,6 @@ import (
 	"golang.org/x/crypto/bn256"
 )
 
-// TODO: Add tests for methods not tested: Add, Neg, GT.ScalarMult
-
 func TestP(t *testing.T) {
 	// Test that p is indeed 36u⁴+36u³+24u³+6u+1
 	// (where u is v³ and v is picked up from the C-library)
@@ -33,29 +31,43 @@ func TestP(t *testing.T) {
 }
 
 func TestG1(t *testing.T) {
+	cmp := func(got *G1, want *bn256.G1) error {
+		if gotB, wantB := got.Marshal(), want.Marshal(); !bytes.Equal(gotB, wantB) {
+			return fmt.Errorf("Got %v want %v", got, want)
+		}
+		return nil
+	}
 	onetest := func(k *big.Int) error {
 		var (
-			got   = new(G1).ScalarBaseMult(k)
-			gotS  = got.String()
-			gotB  = got.Marshal()
-			want  = new(bn256.G1).ScalarBaseMult(k)
-			wantS = want.String()
-			wantB = want.Marshal()
+			got  = new(G1).ScalarBaseMult(k)
+			gotB = got.Marshal()
+			want = new(bn256.G1).ScalarBaseMult(k)
 		)
-		// TODO: Minor implementation difference causes String for
-		// golang.org/x/crypto/bn256.G1 to return (1, -2) for k=1,
-		// while (1, 65000549695646603732796438742359905742825358107623003571877145026864184071781)
-		// for this package. The two are identical since
-		// (-2 mod p) == 65000549695646603732796438742359905742825358107623003571877145026864184071781
-		// So, ignore that difference.
-		if k.Cmp(big.NewInt(1)) == 0 {
-			wantS = "bn256.G1(1, 65000549695646603732796438742359905742825358107623003571877145026864184071781)"
+		if g, w := got.String(), want.String(); g != w {
+			// TODO: Minor implementation difference causes String for
+			// golang.org/x/crypto/bn256.G1 to return (1, -2) for k=1,
+			// while (1, 65000549695646603732796438742359905742825358107623003571877145026864184071781)
+			// for this package. The two are identical since
+			// (-2 mod p) == 65000549695646603732796438742359905742825358107623003571877145026864184071781
+			// So, ignore that difference.
+			if k.Cmp(big.NewInt(1)) == 0 {
+				w = "bn256.G1(1, 65000549695646603732796438742359905742825358107623003571877145026864184071781)"
+			}
+			if g != w {
+				return fmt.Errorf("k=%v: String: Got %q, want %q", k, g, w)
+			}
 		}
-		if gotS != wantS {
-			return fmt.Errorf("k=%v: String: Got %q, want %q", k, gotS, wantS)
+		if err := cmp(got, want); err != nil {
+			return fmt.Errorf("k=%v: ScalarBaseMult: %v", k, err)
 		}
-		if !bytes.Equal(gotB, wantB) {
-			return fmt.Errorf("k=%v: Marshal: Got %v, want %v", k, gotB, wantB)
+		if err := cmp(
+			new(G1).Add(got, new(G1).ScalarBaseMult(big.NewInt(3))),
+			new(bn256.G1).Add(want, new(bn256.G1).ScalarBaseMult(big.NewInt(3))),
+		); err != nil {
+			return fmt.Errorf("k=%v: Add: %v", k, err)
+		}
+		if err := cmp(new(G1).Neg(got), new(bn256.G1).Neg(want)); err != nil {
+			return fmt.Errorf("k=%v: Neg: %v", k, err)
 		}
 		// Unmarshal and Marshal again.
 		unmarshaled, ok := new(G1).Unmarshal(gotB)
@@ -86,20 +98,29 @@ func TestG1(t *testing.T) {
 }
 
 func TestG2(t *testing.T) {
+	cmp := func(got *G2, want *bn256.G2) error {
+		if gotB, wantB := got.Marshal(), want.Marshal(); !bytes.Equal(gotB, wantB) {
+			return fmt.Errorf("Got %v want %v", got, want)
+		}
+		return nil
+	}
 	onetest := func(k *big.Int) error {
 		var (
-			got   = new(G2).ScalarBaseMult(k)
-			gotS  = got.String()
-			gotB  = got.Marshal()
-			want  = new(bn256.G2).ScalarBaseMult(k)
-			wantS = want.String()
-			wantB = want.Marshal()
+			got  = new(G2).ScalarBaseMult(k)
+			want = new(bn256.G2).ScalarBaseMult(k)
+			gotB = got.Marshal()
 		)
-		if gotS != wantS {
-			return fmt.Errorf("k=%v: String: Got %q, want %q", k, gotS, wantS)
+		if g, w := got.String(), want.String(); g != w {
+			return fmt.Errorf("k=%v: String: Got %q, want %q", k, g, w)
 		}
-		if !bytes.Equal(gotB, wantB) {
-			return fmt.Errorf("k=%v: Marshal: Got %v, want %v", k, gotB, wantB)
+		if err := cmp(got, want); err != nil {
+			return fmt.Errorf("k=%v: ScalarBaseMult: %v", k, err)
+		}
+		if err := cmp(
+			new(G2).Add(got, new(G2).ScalarBaseMult(big.NewInt(14141))),
+			new(bn256.G2).Add(want, new(bn256.G2).ScalarBaseMult(big.NewInt(14141))),
+		); err != nil {
+			return fmt.Errorf("k=%v: Add: %v", k, err)
 		}
 		// Unmarshal and Marshal again.
 		unmarshaled, ok := new(G2).Unmarshal(gotB)
@@ -118,24 +139,51 @@ func TestG2(t *testing.T) {
 	if err := onetest(big.NewInt(1)); err != nil {
 		t.Error(err)
 	}
+	// TODO: Enable this. As of this writing, the String method wouldn't produce
+	// output identical to golang.org/x/crypto/bn256.G2.String
+	/*
+		for i := 0; i < 100; i++ {
+			k, err := rand.Int(rand.Reader, p)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := onetest(k); err != nil {
+				t.Errorf("%v (random test #%d)", err, i)
+			}
+		}
+	*/
 }
 
 func TestPair(t *testing.T) {
-	// Two randomly chosen numbers
+	cmp := func(got *GT, want *bn256.GT) error {
+		if gotB, wantB := got.Marshal(), want.Marshal(); !bytes.Equal(gotB, wantB) {
+			return fmt.Errorf("Got %v want %v", got, want)
+		}
+		return nil
+	}
 	onetest := func(k1, k2 *big.Int) error {
 		var (
-			got   = Pair(new(G1).ScalarBaseMult(k1), new(G2).ScalarBaseMult(k2))
-			gotS  = got.String()
-			gotB  = got.Marshal()
-			want  = bn256.Pair(new(bn256.G1).ScalarBaseMult(k1), new(bn256.G2).ScalarBaseMult(k2))
-			wantS = want.String()
-			wantB = want.Marshal()
+			got  = Pair(new(G1).ScalarBaseMult(k1), new(G2).ScalarBaseMult(k2))
+			want = bn256.Pair(new(bn256.G1).ScalarBaseMult(k1), new(bn256.G2).ScalarBaseMult(k2))
+			gotB = got.Marshal()
 		)
-		if gotS != wantS {
-			return fmt.Errorf("(%v, %v): String: Got %q, want %q", k1, k2, gotS, wantS)
+		if g, w := got.String(), want.String(); g != w {
+			return fmt.Errorf("(%v, %v): String: Got %q, want %q", k1, k2, g, w)
 		}
-		if !bytes.Equal(gotB, wantB) {
-			return fmt.Errorf("(%v, %v): Marshal: Got %v, want %v", k1, k2, gotB, wantB)
+		if err := cmp(got, want); err != nil {
+			return fmt.Errorf("(%v, %v): Pair: %v", k1, k2, err)
+		}
+		if err := cmp(new(GT).ScalarMult(got, k1), new(bn256.GT).ScalarMult(want, k1)); err != nil {
+			return fmt.Errorf("(%v, %v): ScalarMult: %v", k1, k2, err)
+		}
+		if err := cmp(
+			new(GT).Add(new(GT).ScalarMult(got, k1), new(GT).ScalarMult(got, k2)),
+			new(bn256.GT).Add(new(bn256.GT).ScalarMult(want, k1), new(bn256.GT).ScalarMult(want, k2)),
+		); err != nil {
+			return fmt.Errorf("(%v, %v): Add: %v", k1, k2, err)
+		}
+		if err := cmp(new(GT).Neg(got), new(bn256.GT).Neg(want)); err != nil {
+			return fmt.Errorf("(%v, %v): Neg: %v", k1, k2, err)
 		}
 		// Unmarshal and Marshal again.
 		unmarshaled, ok := new(GT).Unmarshal(gotB)
@@ -159,7 +207,7 @@ func TestPair(t *testing.T) {
 			t.Error(err)
 		}
 	}
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 25; i++ {
 		k1, err := rand.Int(rand.Reader, p)
 		if err != nil {
 			t.Fatal(err)
