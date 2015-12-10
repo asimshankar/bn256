@@ -42,6 +42,7 @@ var (
 	big6v  *big.Int // 6v
 	baseG1 = new(G1)
 	baseG2 = new(G2)
+	Order  *big.Int
 )
 
 const numBytes = 32
@@ -52,6 +53,7 @@ func init() {
 	C.curvepoint_fp_set(&baseG1.p, &C.bn_curvegen[0])
 	C.twistpoint_fp2_set(&baseG2.p, &C.bn_twistgen[0])
 	big6v = new(big.Int).Mul(big.NewInt(6), v)
+	Order, _ = new(big.Int).SetString("65000549695646603732796438742359905742570406053903786389881062969044166799969", 10)
 }
 
 type G1 struct {

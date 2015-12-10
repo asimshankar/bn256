@@ -255,6 +255,12 @@ func TestBadUnmarshal(t *testing.T) {
 	}
 }
 
+func TestOrder(t *testing.T) {
+	if !bytes.Equal(Order.Bytes(), bn256.Order.Bytes()) {
+		t.Errorf("Got %v, want %v", Order, bn256.Order)
+	}
+}
+
 var benchmarkA, benchmarkB *big.Int
 
 func init() {
