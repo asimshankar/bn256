@@ -10,6 +10,7 @@
 // suggest a ~20x speedup over the pure Go implementation:
 //  BenchmarkPairGo-6             50          32490530 ns/op # golang.org/x/crypto/bn256
 //  BenchmarkPairCGO-6          1000           1588475 ns/op
+//  BenchmarkPairCGO-6           100          10893812 ns/op # using the pure-C implementation (no assembly)
 //
 //
 // Documentation for types and methods should be read from:
@@ -30,9 +31,9 @@ import (
 #include "optate.h"
 
 // Forward declaration of constants defined in parameters.c
-const scalar_t bn_v_scalar;
-const curvepoint_fp_t bn_curvegen;
-const twistpoint_fp2_t bn_twistgen;
+extern const scalar_t bn_v_scalar;
+extern const curvepoint_fp_t bn_curvegen;
+extern const twistpoint_fp2_t bn_twistgen;
 */
 import "C"
 
@@ -48,7 +49,7 @@ var (
 const numBytes = 32
 
 func init() {
-	scalar2big(v, &C.bn_v_scalar)
+	scalar2big(v, (*[4]C.ulonglong)(&C.bn_v_scalar))
 	p, _ = new(big.Int).SetString("65000549695646603732796438742359905742825358107623003571877145026864184071783", 10)
 	C.curvepoint_fp_set(&baseG1.p, &C.bn_curvegen[0])
 	C.twistpoint_fp2_set(&baseG2.p, &C.bn_twistgen[0])

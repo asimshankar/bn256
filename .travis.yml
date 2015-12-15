@@ -2,3 +2,9 @@ language: go
 
 go:
         - 1.5
+
+script:
+        - echo "-- USING OPTIMIZED ASSEMBLY --"
+        - make
+        - echo "-- USING A PURE-C IMPLEMENTATION --"
+        - USE_C=true make clean all

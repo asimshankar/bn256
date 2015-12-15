@@ -1,3 +1,11 @@
+# Set USE_C= to disable use of the optimized assembly implementation and use
+# the portable C implementation instead.
+
+QHASM_FOR_LIB=-DQHASM
+ifdef USE_C
+	QHASM_FOR_LIB=
+endif
+
 CPP=g++
 CPPFLAGS=-g -Wall -DCHECK
 
@@ -63,7 +71,7 @@ test_twistpoint_multiscalar-as: test_twistpoint_multiscalar.c fpe.c fp2e.c scala
 	$(CC) $(CFLAGS) -c -o $@ $^
 
 %.o: %.c
-	$(CC) $(CFLAGS) -DQHASM -c -o $@ $^
+	$(CC) $(CFLAGS) $(QHASM_FOR_LIB) -c -o $@ $^
 
 asfunctions.a: fp2e_add2.o fp2e_sub2.o \
 	fp2e_double2.o fp2e_triple2.o fp2e_neg2.o \
@@ -75,26 +83,43 @@ asfunctions.a: fp2e_add2.o fp2e_sub2.o \
 	rm -f asfunctions.a
 	ar cr asfunctions.a $^
 
-libdclxvi.a: linefunction.o \
-	optate.o \
-	fpe.o \
-	fp2e.o \
-	fp6e.o \
-	fp12e.o \
-	curvepoint_fp.o \
-	twistpoint_fp2.o \
-	final_expo.o \
-	scalar.o \
-	parameters.o \
-	mul.o \
-	mydouble.o \
-	fp2e_add2.o fp2e_sub2.o \
-	fp2e_double2.o fp2e_triple2.o fp2e_neg2.o \
-	fp2e_mul.o fp2e_mul_fpe.o fp2e_short_coeffred.o \
-	fp2e_add.o fp2e_sub.o fp2e_parallel_coeffmul.o fp2e_mulxi.o\
-	fp2e_double.o fp2e_triple.o fp2e_neg.o fp2e_conjugate.o \
-	fpe_mul.o fp2e_square.o \
-	consts.o
+ASOBJECTS=fp2e_add2.o \
+          fp2e_sub2.o \
+          fp2e_double2.o \
+          fp2e_triple2.o \
+          fp2e_neg2.o \
+          fp2e_mul.o \
+          fp2e_mul_fpe.o \
+          fp2e_short_coeffred.o \
+          fp2e_add.o \
+          fp2e_sub.o \
+          fp2e_parallel_coeffmul.o \
+          fp2e_mulxi.o \
+          fp2e_double.o \
+          fp2e_triple.o \
+          fp2e_neg.o \
+          fp2e_conjugate.o \
+          fpe_mul.o \
+          fp2e_square.o \
+          consts.o
+COBJECTS=linefunction.o \
+         optate.o \
+         fpe.o \
+         fp2e.o \
+         fp6e.o \
+         fp12e.o \
+         curvepoint_fp.o \
+         twistpoint_fp2.o \
+         final_expo.o \
+         scalar.o \
+         parameters.o \
+         mul.o \
+         mydouble.o
+LIBOBJECTS=$(COBJECTS)
+ifndef USE_C
+	LIBOBJECTS=$(COBJECTS) $(ASOBJECTS)
+endif
+libdclxvi.a: $(LIBOBJECTS)
 	rm -f $@
 	ar cr $@ $^
 
