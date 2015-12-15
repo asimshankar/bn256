@@ -21,8 +21,8 @@ import (
 	"math/big"
 )
 
-// #cgo CFLAGS: -I./dclxvi-20130329
-// #cgo LDFLAGS: -L./dclxvi-20130329 -ldclxvi -lm
+// #cgo CFLAGS: -I${SRCDIR}/dclxvi-20130329
+// #cgo LDFLAGS: -L${SRCDIR}/dclxvi-20130329 -ldclxvi -lm
 //
 /*
 #include "curvepoint_fp.h"
