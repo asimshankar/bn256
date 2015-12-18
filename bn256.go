@@ -292,26 +292,6 @@ func (e *GT) String() string {
 		tmp.SetBytes(b[11*numBytes:12*numBytes]).String())
 }
 
-func big2scalar(out *[4]C.ulonglong, in *big.Int) error {
-	// TODO: Not portable on 32-bit architectures. Use in.Bytes there?
-	b := in.Bits()
-	if len(b) > 4 {
-		return fmt.Errorf("big.Int needs %d words, cannot be converted to scalar_t", len(b))
-	}
-	for i, w := range b {
-		out[i] = C.ulonglong(w)
-	}
-	return nil
-}
-
-func scalar2big(out *big.Int, in *[4]C.ulonglong) {
-	bits := make([]big.Word, 4)
-	for i := range bits {
-		bits[i] = big.Word(in[i])
-	}
-	out.SetBits(bits)
-}
-
 func fpe2big(out *big.Int, in C.fpe_t) *big.Int { return doubles2big(out, &(in[0].v)) }
 func big2fpe(out *C.fpe_t, in *big.Int)         { big2doubles(&(out[0].v), in) }
 
