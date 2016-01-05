@@ -18,14 +18,25 @@ make -C ${GOPATH}/src/github.com/asimshankar/bn256 install
 USE_C=true make -C ${GOPATH}/src/github.com/asimshankar/bn256 clean install
 ```
 
-## Running on ARM architectures
+## Running on ARM devices (like a RaspberryPi)
 The instructions above work on an arm architecture device as well. Alternatively,
 cross-compile from a more powerful laptop/desktop for the arm processor. From
 ubuntu:
 ```
 sudo apt-get install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
-USE_C=true make test-crosscompiled
+USE_C=true make -C ${GOPATH}/src/github.com/asimshankar/bn256 clean test-crosscompiled
 # This will generate a file like bn256.test.arm which can be copied
 # to an run on an arm device, like a RaspberryPi via:
 bn256.test.arm --test.v --test.bench=.
 ```
+
+## Benchmarking on a mobile phone (Android)
+```
+make -C ${GOPATH}/src/github.com/asimshankar/bn256 clean benchmark-android
+# Use the adb tool from the [Android SDK](http://developer.android.com/sdk/installing/index.html)
+# to install the "app" on the phone
+adb install -r ${GOPATH}/src/github.com/asimshankar/bn256/android.apk
+# Start the 'bn256' application on the phone and then view results by:
+adb logcat *:S GoLog:*
+```
+

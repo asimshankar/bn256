@@ -1,4 +1,5 @@
 bn256.test*
+android.apk
 
 # Object files
 *.o

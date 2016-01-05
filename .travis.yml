@@ -13,4 +13,6 @@ script:
         - echo "-- USING A PURE-C IMPLEMENTATION --"
         - USE_C=true make clean all
         - echo "-- GENERATING LIBRARIES FOR ARM --"
-        - USE_C=true make test-crosscompiled
+        - USE_C=true make clean test-crosscompiled
+        - echo "-- GENERATING BENCHMARKING APP FOR ANDROID --"
+        - make clean benchmark-android
