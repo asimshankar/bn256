@@ -42,7 +42,7 @@ test-crosscompiled:
 	CGO_ENABLED=1 GOARCH=$(CROSSCOMPILE_GOARCH) CC=$(CROSSCOMPILE_CC) CXX=$(CROSSCOMPILE_CPP) $(GO) test -c -o bn256.test.${CROSSCOMPILE_GOARCH}
 
 benchmark-android:
-	USE_C=true $(MAKE) CC=$(CROSSCOMPILE_GOMOBILE)/arm-linux-androideabi-gcc CPP=$(CROSSCOMPILE_GOMOBILE)/arm-linux-androideabi-g++ -C $(DCLXVI_DIR) libdclxvi.a
 	$(GO) get golang.org/x/mobile/cmd/gomobile
 	$(GOPATH)/bin/gomobile init
+	USE_C=true $(MAKE) CC=$(CROSSCOMPILE_GOMOBILE)/arm-linux-androideabi-gcc CPP=$(CROSSCOMPILE_GOMOBILE)/arm-linux-androideabi-g++ -C $(DCLXVI_DIR) libdclxvi.a
 	$(GOPATH)/bin/gomobile build github.com/asimshankar/bn256/android
