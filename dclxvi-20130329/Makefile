@@ -6,6 +6,8 @@ ifdef USE_C
 	QHASM_FOR_LIB=
 endif
 
+AR=ar
+
 CPP=g++
 CPPFLAGS=-g -Wall -DCHECK
 
@@ -81,7 +83,7 @@ asfunctions.a: fp2e_add2.o fp2e_sub2.o \
 	fpe_mul.o fp2e_square.o \
 	consts.o
 	rm -f asfunctions.a
-	ar cr asfunctions.a $^
+	$(AR) cr asfunctions.a $^
 
 ASOBJECTS=fp2e_add2.o \
           fp2e_sub2.o \
@@ -121,7 +123,7 @@ ifndef USE_C
 endif
 libdclxvi.a: $(LIBOBJECTS)
 	rm -f $@
-	ar cr $@ $^
+	$(AR) cr $@ $^
 
 .PHONY: clean
 
