@@ -44,6 +44,6 @@ test-crosscompiled:
 
 benchmark-android:
 	$(GO) get golang.org/x/mobile/cmd/gomobile
-	#$(GOPATH)/bin/gomobile init
+	$(GOPATH)/bin/gomobile init
 	USE_C=true $(MAKE) AR=$(CROSSCOMPILE_GOMOBILE)/arm-linux-androideabi-ar CC=$(CROSSCOMPILE_GOMOBILE)/arm-linux-androideabi-gcc CPP=$(CROSSCOMPILE_GOMOBILE)/arm-linux-androideabi-g++ -C $(DCLXVI_DIR) libdclxvi.a
 	$(GOPATH)/bin/gomobile build github.com/asimshankar/bn256/android
