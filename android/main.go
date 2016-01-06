@@ -1,7 +1,7 @@
 // +build android
 
 // An "app" that runs the parings benchmarks and dumps the results to the
-// logger. Flashes red/black when running and turns green when done.
+// logger. Flashes blue/black when running and turns green when done.
 package main
 
 import (
