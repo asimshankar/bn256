@@ -128,14 +128,14 @@ libdclxvi.a: $(LIBOBJECTS)
 .PHONY: clean
 
 clean:
-	-rm bilintest-check 
-	-rm speedtest-check 
-	-rm bilintest-c
-	-rm speedtest-c
-	-rm bilintest-as 
-	-rm speedtest-as 
-	-rm test_curvepoint_multiscalar-as
-	-rm test_curvepoint_multiscalar-check
-	-rm *.o
-	-rm asfunctions.a
-	-rm libdclxvi.a
+	rm -f bilintest-check  \
+	speedtest-check  \
+	bilintest-c \
+	speedtest-c \
+	bilintest-as \
+	speedtest-as \
+	test_curvepoint_multiscalar-as \
+	test_curvepoint_multiscalar-check \
+	*.o \
+	asfunctions.a \
+	libdclxvi.a
