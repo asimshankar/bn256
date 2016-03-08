@@ -18,7 +18,7 @@ make -C ${GOPATH}/src/github.com/asimshankar/bn256 install
 USE_C=true make -C ${GOPATH}/src/github.com/asimshankar/bn256 clean install
 ```
 
-## Running on ARM devices (like a RaspberryPi)
+## ARM devices (like a RaspberryPi)
 The instructions above work on an arm architecture device as well. Alternatively,
 cross-compile from a more powerful laptop/desktop for the arm processor. From
 ubuntu:
@@ -30,13 +30,11 @@ USE_C=true make -C ${GOPATH}/src/github.com/asimshankar/bn256 clean test-crossco
 bn256.test.arm --test.v --test.bench=.
 ```
 
-## Benchmarking on a mobile phone (Android)
+## Android devices
+Tests and benchmarks can be run on Android as well.  It requires the 
+[Android NDK](http://developer.android.com/ndk/downloads/index.html)
+to be available on the host machine.
 ```
-make -C ${GOPATH}/src/github.com/asimshankar/bn256 clean benchmark-android
-# Use the adb tool from the [Android SDK](http://developer.android.com/sdk/installing/index.html)
-# to install the "app" on the phone
-adb install -r ${GOPATH}/src/github.com/asimshankar/bn256/android.apk
-# Start the 'bn256' application on the phone and then view results by:
-adb logcat *:S GoLog:*
+make -C ${GOPATH}/src/github.com/asimshankar/bn256 clean test-android benchmark-android
 ```
 
