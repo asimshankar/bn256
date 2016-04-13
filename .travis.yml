@@ -1,7 +1,7 @@
 language: go
 
 go:
-        - 1.5
+        - 1.6
 
 before_install:
         - sudo apt-get update -qq
@@ -12,5 +12,7 @@ script:
         - make
         - echo "-- USING A PURE-C IMPLEMENTATION --"
         - USE_C=true make clean all
-        - echo "-- GENERATING LIBRARIES FOR ARM --"
-        - USE_C=true make clean test-crosscompiled
+        - echo "-- GENERATING TEST BINARY FOR ARM --"
+        - make clean test-arm
+        - echo "-- GENERATING TEST BINARY FOR INTEL EDISON --"
+        - make clean test-edison

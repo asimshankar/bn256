@@ -2,10 +2,12 @@ GO=go
 DCLXVI_DIR=dclxvi-20130329
 # Cross-compilers. On Ubuntu, these can be obtained using:
 # apt-get install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
-CROSSCOMPILE_AR=/usr/bin/arm-linux-gnueabihf-ar
-CROSSCOMPILE_CC=/usr/bin/arm-linux-gnueabihf-gcc
-CROSSCOMPILE_CPP=/usr/bin/arm-linux-gnueabihf-g++
-CROSSCOMPILE_GOARCH=arm
+AR_ARM=/usr/bin/arm-linux-gnueabihf-ar
+CC_ARM=/usr/bin/arm-linux-gnueabihf-gcc
+CPP_ARM=/usr/bin/arm-linux-gnueabihf-g++
+AR_386=$(AR)
+CC_386="$(CC) -m32"
+CPP_386="$(CPP) -m32"
 
 all: libdclxvi test benchmarks install
 
@@ -19,7 +21,7 @@ libdclxvi:
 clean:
 	$(GO) clean -i ./...
 	$(MAKE) -C $(DCLXVI_DIR) clean
-	rm -f bn256.test* android.apk
+	rm -f bn256.test*
 
 deps: libdclxvi
 	$(GO) get -t ./...
@@ -33,11 +35,15 @@ install: deps
 benchmarks: deps
 	$(GO) test ./... -run X -bench .
 
-# Target to build a cross-compiled binary that can be used to run the tests and
+# Targets to build a cross-compiled binary that can be used to run the tests and
 # benchmarks on a different architecture.
-test-crosscompiled:
-	$(MAKE) AR=$(CROSSCOMPILE_AR) CC=$(CROSSCOMPILE_CC) CPP=$(CROSSCOMPILE_CPP) -C $(DCLXVI_DIR) libdclxvi.a
-	CGO_ENABLED=1 GOARCH=$(CROSSCOMPILE_GOARCH) CC=$(CROSSCOMPILE_CC) CXX=$(CROSSCOMPILE_CPP) $(GO) test -c -o bn256.test.${CROSSCOMPILE_GOARCH}
+test-arm:
+	USE_C=true $(MAKE) AR=$(AR_ARM) CC=$(CC_ARM) CPP=$(CPP_ARM) -C $(DCLXVI_DIR) libdclxvi.a
+	CGO_ENABLED=1 GOARCH=arm CC=$(CC_ARM) CXX=$(CPP_ARM) $(GO) test -c -o bn256.test.arm
+
+test-edison:
+	USE_C=true $(MAKE) AR=$(AR_386) CC=$(CC_386) CPP=$(CPP_386) -C $(DCLXVI_DIR) libdclxvi.a
+	CGO_ENABLED=1 GOARCH=386 CC=$(CC_386) CXX=$(CPP_386) $(GO) test -c -o bn256.test.edison
 
 .PHONY: android
 
