@@ -46,5 +46,5 @@ make -C ${GOPATH}/src/github.com/asimshankar/bn256 clean test-android benchmark-
 make -C ${GOPATH}/src/github.com/asimshankar/bn256 clean test-edison
 # This will generate a file like bn256.test.edison which can be copied
 # to and run on an Intel Edison via:
-bn256.test.arm --test.v --test.bench=.
+bn256.test.edison --test.v --test.bench=.
 ```
